@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KIDZ_POST.DATA.CONTRACT\KIDZ_POST.DATA.CONTRACT.csproj" />
+  </ItemGroup>
+
+</Project>

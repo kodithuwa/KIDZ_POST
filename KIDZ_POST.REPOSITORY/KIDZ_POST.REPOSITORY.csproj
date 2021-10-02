@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KIDZ_POST.DATA.MODEL\KIDZ_POST.DATA.MODEL.csproj" />
+    <ProjectReference Include="..\KIDZ_POST.DATA\KIDZ_POST.DATA.csproj" />
+    <ProjectReference Include="..\KIDZ_POST.REPOSITORY.CONTRACT\KIDZ_POST.REPOSITORY.CONTRACT.csproj" />
+  </ItemGroup>
+
+</Project>
