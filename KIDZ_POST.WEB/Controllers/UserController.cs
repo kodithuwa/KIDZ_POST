@@ -21,16 +21,18 @@
             this.context = context;
         }
 
-        [HttpGet("GetAll")]
-        public dynamic GetAll()
+        [HttpGet("{teacherId}")]
+        public dynamic GetAll(int teacherId = 0)
         {
-            var users = this.context.Set<User>().Select(x => new
+            var entities = teacherId > 0 ? this.context.Set<User>().Where(x => x.TeacherId == teacherId) : this.context.Set<User>();
+            var users = entities.Select(x => new
             {
                 x.Id,
                 x.FirstName,
                 x.LastName,
                 x.UserName,
                 x.Password,
+                x.TeacherId,
                 Messages = x.Messages.Select(y => new
                 {
                     y.Id,
