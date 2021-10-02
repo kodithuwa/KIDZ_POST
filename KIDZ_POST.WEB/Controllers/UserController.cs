@@ -28,6 +28,8 @@
                 x.Id,
                 x.FirstName,
                 x.LastName,
+                x.UserName,
+                x.Password,
                 Messages = x.Messages.Select(y => new
                 {
                     y.Id,
@@ -56,6 +58,7 @@
                 UserName = entity.UserName,
                 Password = entity.Password,
                 Description = entity.Description,
+                IsTeacher = entity.IsTeacher,
                 IsActivated = entity.IsActivated
             };
             return result;
@@ -86,6 +89,7 @@
                 Description = user.Description,
                 UserName = user.UserName,
                 Password = user.Password,
+                IsTeacher = user.IsTeacher,
                 IsActivated = user.IsActivated,
             });
             var progress = await this.context.SaveAsync();

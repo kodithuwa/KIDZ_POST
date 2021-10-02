@@ -18,6 +18,8 @@ namespace KIDZ_POST.DATA.MODEL
 
         public string Password { get; set; }
 
+        public bool IsTeacher { get; set; }
+
         public bool IsActivated { get; set; }
 
         public IEnumerable<Message> Messages { get; set; }
