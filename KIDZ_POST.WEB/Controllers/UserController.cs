@@ -8,6 +8,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
+    [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
