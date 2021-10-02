@@ -29,6 +29,7 @@
                 x.Id,
                 x.FirstName,
                 x.LastName,
+                x.IsTeacher,
                 Messages = x.Messages.Select(y => new
                 {
                     y.Id,

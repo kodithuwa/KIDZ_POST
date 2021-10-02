@@ -19,6 +19,8 @@ namespace KIDZ_POST.API.ApiModels
 
         public string Password { get; set; }
 
+        public bool IsTeacher { get; set; }
+
         public bool IsActivated { get; set; }
 
     }
