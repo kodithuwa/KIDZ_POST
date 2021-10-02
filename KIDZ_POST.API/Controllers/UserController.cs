@@ -30,6 +30,8 @@
                 x.FirstName,
                 x.LastName,
                 x.IsTeacher,
+                x.UserName,
+                x.Password,
                 Messages = x.Messages.Select(y => new
                 {
                     y.Id,
@@ -39,6 +41,29 @@
                 })
             });
             return users;
+        }
+
+        [HttpGet("{userId}")]
+        public UserModel Get(int userId)
+        {
+            var user = this.context.Set<User>().FirstOrDefault(x => x.Id == userId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var result = new UserModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Description = user.Description,
+                IsActivated = user.IsActivated,
+                UserName = user.UserName,
+                Password = user.Password,
+                IsTeacher = user.IsTeacher
+            };
+            return result;
         }
 
         [HttpGet("Login")]
@@ -67,19 +92,6 @@
         [HttpPost("Register")]
         public async Task<UserModel> Register(UserModel user)
         {
-            //var users = this.context.Set<User>().Select(x => new UserNMessagesModel
-            //{
-            //    Id = x.Id,
-            //    FirstName = x.FirstName,
-            //    LastName = x.LastName,
-            //    Messages = x.Messages == null ? null : x.Messages.Select(y => new MessageModel
-            //    {
-            //        Id = y.Id,
-            //        Title = y.Title,
-            //        Body = y.Body,
-            //        CreatedTime = y.CreatedTime,
-            //    })
-            //}).ToList();
 
             var entity = this.context.Set<User>().Add(new DATA.MODEL.User
             {

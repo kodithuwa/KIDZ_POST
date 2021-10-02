@@ -38,6 +38,25 @@ namespace KIDZ_POST.WEB.Controllers
             return result;
         }
 
+        [HttpGet("{messageId}")]
+        public MessageModel GetMessage(int messageId)
+        {
+            var message = this.context.Set<Message>().FirstOrDefault(x => x.Id == messageId);
+            if (message == null)
+            {
+                return null;
+            }
+            var result = new MessageModel
+            {
+                Id = message.Id,
+                Title = message.Title,
+                Body = message.Body,
+                CreatedTime = message.CreatedTime,
+                CreatedById = message.CreatedById
+            };
+            return result;
+        }
+
         [HttpPost]
         public async Task<MessageModel> Create(MessageModel message)
         {
