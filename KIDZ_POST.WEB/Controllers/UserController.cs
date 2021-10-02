@@ -21,7 +21,7 @@
             this.context = context;
         }
 
-        [HttpGet("{teacherId}")]
+        [HttpGet("GetAll/{teacherId}")]
         public dynamic GetAll(int teacherId = 0)
         {
             var entities = teacherId > 0 ? this.context.Set<User>().Where(x => x.TeacherId == teacherId) : this.context.Set<User>();
@@ -33,13 +33,15 @@
                 x.UserName,
                 x.Password,
                 x.TeacherId,
-                Messages = x.Messages.Select(y => new
-                {
-                    y.Id,
-                    y.Title,
-                    y.Body,
-                    y.CreatedTime,
-                })
+                x.IsActivated,
+                x.IsTeacher,
+                //Messages = x.Messages.Select(y => new
+                //{
+                //    y.Id,
+                //    y.Title,
+                //    y.Body,
+                //    y.CreatedTime,
+                //})
             });
             return users;
         }
@@ -90,6 +92,29 @@
             return result;
         }
 
+        [HttpPut]
+        public async Task<UserModel> Update(UserModel user)
+        {
+            if (user == null || user.Id == 0)
+            {
+                return default;
+            }
+            var entity = this.context.Set<User>().FirstOrDefault(x => x.Id == user.Id);
+            if (entity == null)
+            {
+                return default;
+            }
+
+            entity.FirstName = user.FirstName;
+            entity.LastName = user.LastName;
+            entity.Description = user.Description;
+            entity.IsTeacher = user.IsTeacher;
+            entity.TeacherId = user.TeacherId;
+            this.context.Set<User>().Update(entity);
+            var progress = await this.context.SaveAsync();
+            var result = progress > 0 ? user : null;
+            return user;
+        }
 
         [HttpPost("Register")]
         public async Task<UserModel> Register(UserModel user)
