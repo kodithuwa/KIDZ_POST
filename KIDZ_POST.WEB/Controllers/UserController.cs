@@ -107,6 +107,7 @@
                 Description = rst.Description,
                 UserName = rst.UserName,
                 Password = rst.Password,
+                IsTeacher = rst.IsTeacher,
                 IsActivated = rst.IsActivated,
             };
             return result;
