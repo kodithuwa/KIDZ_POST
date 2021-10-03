@@ -92,7 +92,7 @@ namespace KIDZ_POST.WEB.Controllers
            
         }
 
-        [HttpPost]
+        [HttpPost("SaveUserMessages")]
         public async Task<bool> SaveUserMessages(IEnumerable<UserMessageModel> userMessages)
         {
             if(userMessages == null || !userMessages.Any())
