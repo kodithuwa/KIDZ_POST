@@ -62,40 +62,71 @@ namespace KIDZ_POST.WEB.Controllers
         public IEnumerable<UserMessageModel> GetUserMessages(int teacherId, int messageId)
         {
 
-                var users = this.context.Set<User>().Where(x => x.TeacherId == teacherId);
-                var existusermessages = this.context.Set<UserMessage>().Where(x => x.MessageId == messageId);
-                var usersExistMessages = users
-                    .Join(existusermessages, o => o.Id, i => i.UserId, (o, i) => new { o.Id, i.MessageId });
-                if (usersExistMessages.Any())
-                {
-                    var usermessages = this.context.Set<User>().Where(x => x.TeacherId == teacherId)
-                        .GroupJoin(this.context.Set<UserMessage>().Where(x => x.MessageId == messageId), i => i.Id, o => o.UserId, (o, i) => new { UserId = o.Id, UserFullName = $"{o.FirstName} {o.LastName}", UserMessages = i })
-                        .SelectMany(x => x.UserMessages.DefaultIfEmpty(), (o, i) => new { o.UserId, o.UserFullName, UserMessageId = i.Id, i.MessageId, i.ViewedTime });
+            var users = this.context.Set<User>().Where(x => x.TeacherId == teacherId);
+            var existusermessages = this.context.Set<UserMessage>().Where(x => x.MessageId == messageId);
+            var usersExistMessages = users
+                .Join(existusermessages, o => o.Id, i => i.UserId, (o, i) => new { o.Id, i.MessageId });
+            var usermessageModels = new List<UserMessageModel>();
+            if (usersExistMessages.Any())
+            {
+                var usermessages = this.context.Set<User>().Where(x => x.TeacherId == teacherId)
+                    .GroupJoin(this.context.Set<UserMessage>().Where(x => x.MessageId == messageId), i => i.Id, o => o.UserId, (o, i) => new { UserId = o.Id, UserFullName = $"{o.FirstName} {o.LastName}", UserMessages = i })
+                    .SelectMany(x => x.UserMessages.DefaultIfEmpty(), (o, i) => new { o.UserId, o.UserFullName, UserMessageId = i.Id, i.MessageId, i.ViewedTime });
 
-                }
-                else
+                if (usermessages.Any())
                 {
-
-                        var usersMessages = new List<UserMessageModel>();
-                        users.ToList().ForEach(x =>
+                    usermessages.ToList().ForEach(x =>
+                    {
+                        usermessageModels.Add(new UserMessageModel
                         {
-                            usersMessages.Add(new UserMessageModel
-                            {
-                                MessageId = messageId,
-                                UserId = x.Id,
-                                UserFullName = $"{x.FirstName} {x.LastName}",
-                            });
+                            MessageId = x.MessageId,
+                            UserId = x.UserId,
+                            UserFullName = x.UserFullName,
+                            UserMessageId = x.UserMessageId,
+                            ViewedTime = x.ViewedTime,
                         });
-
+                    });
                 }
-                return default;
-           
+            }
+            else
+            {
+
+                var usersMessages = new List<UserMessageModel>();
+                users.ToList().ForEach(x =>
+                {
+                    usersMessages.Add(new UserMessageModel
+                    {
+                        MessageId = messageId,
+                        UserId = x.Id,
+                        UserFullName = $"{x.FirstName} {x.LastName}",
+                    });
+                });
+
+                if (usersMessages.Any())
+                {
+                    usersMessages.ToList().ForEach(x =>
+                    {
+                        usermessageModels.Add(new UserMessageModel
+                        {
+                            MessageId = x.MessageId,
+                            UserId = x.UserId,
+                            UserFullName = x.UserFullName,
+                            UserMessageId = x.UserMessageId,
+                            ViewedTime = x.ViewedTime,
+                        });
+                    });
+                }
+
+            }
+            var result = usermessageModels.Any() ? usermessageModels : default;
+            return result;
+
         }
 
         [HttpPost("SaveUserMessages")]
         public async Task<bool> SaveUserMessages(IEnumerable<UserMessageModel> userMessages)
         {
-            if(userMessages == null || !userMessages.Any())
+            if (userMessages == null || !userMessages.Any())
             {
                 return default;
             }
@@ -138,7 +169,7 @@ namespace KIDZ_POST.WEB.Controllers
 
                 });
                 var saved = await this.context.SaveAsync();
-                if(saved > 0)
+                if (saved > 0)
                 {
 
                     var result = savedEntities.Select(x => new UserMessageModel
