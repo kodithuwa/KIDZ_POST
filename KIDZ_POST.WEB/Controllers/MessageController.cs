@@ -57,7 +57,48 @@ namespace KIDZ_POST.WEB.Controllers
             return result;
         }
 
+        [HttpGet("GetUserMessages/{messageId}")]
+        public IEnumerable<UserMessageModel> GetUserMessages(int messageId)
+        {
+            var usermessages = this.context.Set<UserMessage>().Where(x => x.MessageId == messageId);
+            if (usermessages == null || !usermessages.Any())
+            {
+                return null;
+            }
+            var result = usermessages.Select(x => new UserMessageModel
+            {
+                MessageId = x.MessageId,
+                UserId = x.UserId,
+                UserMessageId = x.Id,
+                ViewedTime = x.ViewedTime,
+            });
+                
+            return result;
+        }
 
+
+    //    public IEnumerable<UserMessageModel> GetUserMessages(int teacherId, int messageId)
+    //    {
+
+    //        var usermessages = this.context.Set<User>().Where(x => x.TeacherId == teacherId)
+    //.GroupJoin(this.context.Set<UserMessage>().Where(x => x.MessageId == messageId), i => i.Id, o => o.UserId, (o, i) => new { UserId = o.Id, UserFullName = $"{o.FirstName} {o.LastName}", UserMessages = i })
+    //.SelectMany(x => x.UserMessages.DefaultIfEmpty(), (o, i) => new { o.UserId, o.UserFullName, UserMessageId = i.Id, i.MessageId, i.ViewedTime });
+
+    //        if (usermessages == null || !usermessages.Any())
+    //        {
+    //            return null;
+    //        }
+    //        var result = usermessages.Select(x => new UserMessageModel
+    //        {
+    //            MessageId = x.MessageId,
+    //            UserId = x.UserId,
+    //            UserFullName = x.UserFullName,
+    //            UserMessageId = x.UserMessageId,
+    //            ViewedTime = x.ViewedTime,
+    //        });
+
+    //        return result;
+    //    }
         [HttpPost]
         public async Task<MessageModel> Create(MessageModel message)
         {
