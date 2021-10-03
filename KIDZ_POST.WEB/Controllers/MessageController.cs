@@ -2,6 +2,7 @@
 using KIDZ_POST.DATA.MODEL;
 using KIDZ_POST.WEB.ApiModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -57,48 +58,103 @@ namespace KIDZ_POST.WEB.Controllers
             return result;
         }
 
-        [HttpGet("GetUserMessages/{messageId}")]
-        public IEnumerable<UserMessageModel> GetUserMessages(int messageId)
+        [HttpGet("GetUserMessages/{teacherId}/{messageId}")]
+        public IEnumerable<UserMessageModel> GetUserMessages(int teacherId, int messageId)
         {
-            var usermessages = this.context.Set<UserMessage>().Where(x => x.MessageId == messageId);
-            if (usermessages == null || !usermessages.Any())
-            {
-                return null;
-            }
-            var result = usermessages.Select(x => new UserMessageModel
-            {
-                MessageId = x.MessageId,
-                UserId = x.UserId,
-                UserMessageId = x.Id,
-                ViewedTime = x.ViewedTime,
-            });
-                
-            return result;
+
+                var users = this.context.Set<User>().Where(x => x.TeacherId == teacherId);
+                var existusermessages = this.context.Set<UserMessage>().Where(x => x.MessageId == messageId);
+                var usersExistMessages = users
+                    .Join(existusermessages, o => o.Id, i => i.UserId, (o, i) => new { o.Id, i.MessageId });
+                if (usersExistMessages.Any())
+                {
+                    var usermessages = this.context.Set<User>().Where(x => x.TeacherId == teacherId)
+                        .GroupJoin(this.context.Set<UserMessage>().Where(x => x.MessageId == messageId), i => i.Id, o => o.UserId, (o, i) => new { UserId = o.Id, UserFullName = $"{o.FirstName} {o.LastName}", UserMessages = i })
+                        .SelectMany(x => x.UserMessages.DefaultIfEmpty(), (o, i) => new { o.UserId, o.UserFullName, UserMessageId = i.Id, i.MessageId, i.ViewedTime });
+
+                }
+                else
+                {
+
+                        var usersMessages = new List<UserMessageModel>();
+                        users.ToList().ForEach(x =>
+                        {
+                            usersMessages.Add(new UserMessageModel
+                            {
+                                MessageId = messageId,
+                                UserId = x.Id,
+                                UserFullName = $"{x.FirstName} {x.LastName}",
+                            });
+                        });
+
+                }
+                return default;
+           
         }
 
+        [HttpPost]
+        public async Task<bool> SaveUserMessages(IEnumerable<UserMessageModel> userMessages)
+        {
+            if(userMessages == null || !userMessages.Any())
+            {
+                return default;
+            }
 
-    //    public IEnumerable<UserMessageModel> GetUserMessages(int teacherId, int messageId)
-    //    {
+            //var updateMessages = userMessages.Where(x => x.UserMessageId > 0);
+            var insertMessages = userMessages.Where(x => x.UserMessageId == 0);
+            var saveList = new List<UserMessage>();
+            //if (updateMessages.Any())
+            //{
+            //    var updateMessagesIds = updateMessages.Select(x => x.UserMessageId);
+            //    var existMessages = this.context.Set<UserMessage>().Where(x => updateMessagesIds.Contains(x.Id));
+            //}
 
-    //        var usermessages = this.context.Set<User>().Where(x => x.TeacherId == teacherId)
-    //.GroupJoin(this.context.Set<UserMessage>().Where(x => x.MessageId == messageId), i => i.Id, o => o.UserId, (o, i) => new { UserId = o.Id, UserFullName = $"{o.FirstName} {o.LastName}", UserMessages = i })
-    //.SelectMany(x => x.UserMessages.DefaultIfEmpty(), (o, i) => new { o.UserId, o.UserFullName, UserMessageId = i.Id, i.MessageId, i.ViewedTime });
+            if (insertMessages.Any())
+            {
+                insertMessages.ToList().ForEach(x =>
+                {
+                    saveList.Add(new UserMessage
+                    {
+                        MessageId = x.MessageId,
+                        UserId = x.UserId,
+                    });
+                });
+            }
 
-    //        if (usermessages == null || !usermessages.Any())
-    //        {
-    //            return null;
-    //        }
-    //        var result = usermessages.Select(x => new UserMessageModel
-    //        {
-    //            MessageId = x.MessageId,
-    //            UserId = x.UserId,
-    //            UserFullName = x.UserFullName,
-    //            UserMessageId = x.UserMessageId,
-    //            ViewedTime = x.ViewedTime,
-    //        });
+            if (saveList.Any())
+            {
+                var savedEntities = new List<EntityEntry<UserMessage>>();
+                saveList.ForEach(x =>
+                {
+                    if (x.Id == 0)
+                    {
+                        var xx = this.context.Set<UserMessage>().Add(x);
+                        savedEntities.Add(xx);
+                    }
+                    //else
+                    //{
 
-    //        return result;
-    //    }
+                    //}
+
+                });
+                var saved = await this.context.SaveAsync();
+                if(saved > 0)
+                {
+
+                    var result = savedEntities.Select(x => new UserMessageModel
+                    {
+                        MessageId = x.Entity.MessageId,
+                        UserId = x.Entity.UserId,
+                        UserMessageId = x.Entity.Id,
+                    });
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         [HttpPost]
         public async Task<MessageModel> Create(MessageModel message)
         {
