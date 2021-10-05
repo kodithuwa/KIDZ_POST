@@ -19,6 +19,7 @@ namespace KIDZ_POST.WEB.ApiModels
 
         public DateTime ViewedTime { get; set; }
 
+        public bool IsActivated { get; set; }
 
     }
 }

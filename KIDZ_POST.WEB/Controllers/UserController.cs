@@ -127,6 +127,7 @@
                 Description = user.Description,
                 UserName = user.UserName,
                 Password = user.Password,
+                TeacherId = user.TeacherId,
                 IsTeacher = user.IsTeacher,
                 IsActivated = user.IsActivated,
             });
@@ -145,6 +146,7 @@
                 Description = rst.Description,
                 UserName = rst.UserName,
                 Password = rst.Password,
+                TeacherId = rst.TeacherId,
                 IsTeacher = rst.IsTeacher,
                 IsActivated = rst.IsActivated,
             };
