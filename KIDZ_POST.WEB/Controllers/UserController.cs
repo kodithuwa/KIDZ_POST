@@ -64,6 +64,7 @@
                 IsActivated = user.IsActivated,
                 UserName = user.UserName,
                 Password = user.Password,
+                TeacherId = user.TeacherId,
                 IsTeacher = user.IsTeacher
             };
             return result;
