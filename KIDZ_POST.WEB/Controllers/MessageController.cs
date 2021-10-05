@@ -123,6 +123,32 @@ namespace KIDZ_POST.WEB.Controllers
 
         }
 
+        [HttpGet("GetUserMessages/{userId}")]
+        public IEnumerable<MessageModel> GetUserMessages(int userId)
+        {
+            var user = this.context.Set<User>().FirstOrDefault(x => x.Id == userId);
+            var usermessages = this.context.Set<UserMessage>().Where(x => x.UserId == userId);
+            if (!usermessages.Any())
+            {
+                return default;
+            }
+
+            var messages = usermessages.Select(x => x.Message);
+            var result = messages.Select(x => new MessageModel
+            {
+                Id = x.Id,
+                Body = x.Body,
+                Title = x.Title,
+                CreatedTime = x.CreatedTime,
+                CreatedById = x.CreatedById,
+            });
+            
+            return result;
+
+        }
+
+
+
         [HttpPost("SaveUserMessages")]
         public async Task<bool> SaveUserMessages(IEnumerable<UserMessageModel> userMessages)
         {
